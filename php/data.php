@@ -18,8 +18,21 @@
     </thead>
     <tbody>
         <?php
+            $id = 10;
+            // $query = $conn->prepare("SELECT * FROM employees WHERE id = :id AND useId = :id");
+            // $query->bindParam(":id", $id);
+            // $query->execute();
+
+
             $query = $conn->query("SELECT * FROM employees");
-            $rows = $query->fetchAll();
+            while($row = $query->fetch(PDO::FETCH_ASSOC)) {
+                echo "<pre>";
+                print_r($row);
+                echo "</pre>";
+                echo "<hr>";
+            }
+
+            $rows = [];
             foreach($rows as $row):
         ?>
         <tr>
