@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form>
+        <input id="title" type="text" placeholder="Title">
+        <input id="content" type="text" placeholder="Content">
+        <input id="category" type="text" placeholder="Category">
+        <button id="btn-insert" type="button">Ajouter</button>
+    </form>
+
+    <br>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        function getData() {
+            $.ajax({
+                url: "http://localhost:3000/api/posts.php",
+                method: "get",
+                success: function (data) {
+                    var html = data.map(post => {
+                        return `
+                        <tr>
+                            <td>${post.id}</td>
+                            <td>${post.title}</td>
+                            <td>${post.category_id}</td>
+                            <td>${post.date}</td>
+                        </tr>
+                    `;
+                    }).join("")
+                    document.querySelector("table tbody").innerHTML = html;
+                }
+            })
+        }
+        getData();
+
+        document.getElementById("btn-insert").addEventListener("click", function () {
+            console.log("click");
+            var title = document.getElementById("title").value;
+            var content = document.getElementById("content").value;
+            var category = document.getElementById("category").value;
+
+            $.ajax({
+                url: "http://localhost:3000/api/posts.php",
+                method: "post",
+                data: {
+                    title: title,
+                    content: content,
+                    category_id: category
+                },
+                success: function (data) {
+                    if (data.status == true) {
+                        getData();
+                    }
+                    else {
+                        alert(data.message);
+                    }
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>
