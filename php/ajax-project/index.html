@@ -5,6 +5,112 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+        }
+
+        form {
+            width: 100%;
+            display: flex;
+            background-color: #ddd;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            border: 20px solid #fff;
+        }
+
+        form input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            margin-right: 10px;
+        }
+
+        form button {
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        #posts {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .post-item {
+            position: relative;
+            flex: 0 0 200px;
+            padding: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            margin: 20px 10px;
+            overflow: hidden;
+        }
+
+        .post-item .category {
+            font-size: 14px;
+            margin-bottom: 10px;
+            background-color: blueviolet;
+            padding: 10px;
+            border-radius: 6px;
+            color: #fff;
+        }
+
+        .post-item .title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .post-item .date {
+            font-size: 12px;
+            opacity: .6;
+        }
+
+        .post-item:hover .actions {
+            transform: none;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ddd;
+            padding: 10px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            z-index: 2;
+            width: 100%;
+            transform: translateY(100%);
+            transition: all .3s;
+        }
+
+        .actions .update,
+        .actions .delete {
+            border: none;
+            outline: none;
+            color: #fff;
+            padding: 6px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .actions .update {
+            background-color: darkseagreen;
+        }
+
+        .actions .delete {
+            background-color: brown;
+        }
+    </style>
 </head>
 
 <body>
@@ -17,19 +123,7 @@
 
     <br>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Date</th>
-            </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-    </table>
+    <div id="posts"></div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
@@ -40,19 +134,44 @@
                 success: function (data) {
                     var html = data.map(post => {
                         return `
-                        <tr>
-                            <td>${post.id}</td>
-                            <td>${post.title}</td>
-                            <td>${post.category_id}</td>
-                            <td>${post.date}</td>
-                        </tr>
+                        <div class="post-item">
+                            <h3 class="category">${post.category}</h3>
+                            <h2 class="title">${post.title}</h2>
+                            <small class="date">${post.date}</small>
+
+                            <div class="actions">
+                                <button class="update" onClick="fillInputs(${post.id}, '${post.title}', '${post.content}', ${post.category_id})">Update</button>
+                                <button class="delete" onclick="deletePost(${post.id})">Delete</button>
+                            </div>
+                        </div>
                     `;
                     }).join("")
-                    document.querySelector("table tbody").innerHTML = html;
+                    document.querySelector("#posts").innerHTML = html;
                 }
             })
         }
         getData();
+
+        function fillInputs(id, title, content, category_id) {
+            console.log(id, title);
+            document.getElementById("title").value = title;
+            document.getElementById("content").value = content;
+            document.getElementById("category").value = category_id;
+        }
+
+        function deletePost(id) {
+            $.ajax({
+                url: `http://localhost:3000/api/posts.php?id=${id}`,
+                method: "delete",
+                success: function (data) {
+                    if (data.status == true) {
+                        getData();
+                    }
+                
+                    alert(data.message);
+                }
+            })
+        }
 
         document.getElementById("btn-insert").addEventListener("click", function () {
             console.log("click");
